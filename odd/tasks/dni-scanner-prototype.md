@@ -1,39 +1,48 @@
 # DNI Scanner Prototype — ocr_dni
 
 ## Objective
-Flutter prototype that scans the PDF417 barcode on the back of a Peruvian DNI and fills a card with: DNI number, full names, birth date, department/province/district, and address.
+Flutter prototype that scans a Peruvian DNI and fills a card with: DNI number, full names, birth date, department/province/district, and address. Two extraction paths: PDF417 barcode (primary) and MRZ TD1 text recognition (birth date + redundancy).
 
 ## Problem / Why
-Manual entry of DNI data is slow and error-prone. The Peruvian DNI carries all target fields inside the PDF417 barcode on the back of the card, so barcode scanning is the reliable extraction path (not raw OCR). OCR remains a possible future fallback for damaged barcodes.
+Manual entry of DNI data is slow and error-prone. Desk research (2026-10-10, source: Eitol/peru-dni-reader, recorded in `.agents/skills/dni-pdf417-parsing/references/payload-layout-notes.md`) established:
+- The 1997 DNI PDF417 payload uses fixed byte offsets (not pipe-delimited); the date at offsets 448-455 is likely expiration, not birth.
+- MRZ TD1 (present on all DNI versions) reliably carries document number, birth date, sex, and names.
+- Address and department/province/district (ubigeo) are NOT present in documented barcode/MRZ fields; they may only exist in the DNIe chip.
 
 ## Scope (authorized)
 - Scan screen using `mobile_scanner` restricted to PDF417
-- Tolerant pipe-delimited payload parser (calibration-friendly field order)
-- Card UI filled with parsed data + collapsible raw payload (debug/calibration aid) + rescan action
-- Unit tests for the parser (TDD) and widget tests for the card/home
-- NOT in scope: backend, persistence, OCR fallback, ubigeo code mapping table, PDF417 validation against real cards (recorded as follow-up calibration)
+- MRZ TD1 reading via `google_mlkit_text_recognition` (OCR limited to the MRZ zone; general OCR stays out of scope)
+- Format-tolerant payload parser: detect fixed-offset 1997 layout / delimited hypothesis / unknown before mapping fields
+- Field merge: PDF417 + MRZ results unified into `DniData`, tracking per-field source; birth date taken from MRZ when available
+- Card UI: parsed fields; address and ubigeo rendered empty with a "pending calibration" flag; collapsible raw payload AND raw MRZ text (debug/calibration aid); rescan action
+- Unit tests: parser layout cases (fixed-offset canonical, delimited hypothesis, unknown, short payload) + MRZ parse; widget tests for card/home
+- NOT in scope: backend, persistence, general OCR, NFC/chip reading, ubigeo mapping table (follow-up: real-card calibration incl. DNIe NFC research)
 
 ## Constraints
 - Flutter 3.41.2 / Dart 3.11.0, Windows dev host (targets: Android/iOS)
+- Packages: `mobile_scanner` (PDF417), `google_mlkit_text_recognition` (MRZ)
 - Artifacts in English (code, comments, UI copy)
 - Commits: Conventional Commits, no Co-Authored-By / AI attribution
-- Branch: `feature/dni-scanner-prototype` (repo previously had zero commits)
+- Branch: `feature/dni-scanner-prototype` off `feature/project-skills`
 
 ## Tasks
-- [ ] T1: Bootstrap Flutter app at repo root (`flutter create .`, `mobile_scanner` dep, camera permissions Android + iOS)
-- [ ] T2: `DniData` model + PDF417 payload parser + unit tests (observe RED, then GREEN)
-- [ ] T3: Home screen + scanner screen + DNI card fill flow (+ widget tests)
+- [ ] T1: Bootstrap Flutter app at repo root (`flutter create .`, deps, camera permissions Android + iOS)
+- [ ] T2: `DniData` model + PDF417 multi-format parser + MRZ TD1 parser + merge logic + unit tests (RED -> GREEN)
+- [ ] T3: Home screen + scanner flow (barcode then MRZ capture) + card fill with per-field source/flags (+ widget tests)
 - [ ] T4: Parent verification (`flutter analyze`, `flutter test`) + native review assessment
 
 ## Acceptance criteria
 - `flutter analyze` reports no issues
 - `flutter test` all green
-- After a scan, the card shows the 5 requested data groups; raw payload visible in a collapsible section
-- Parser handles the documented pipe-delimited layout; unrecognized layouts fail gracefully (error state, no crash)
+- After scanning, the card shows DNI number, names, and birth date (from MRZ when readable); address/ubigeo show empty + pending-calibration flag
+- Parser handles all four layout cases without crashing; unknown layout surfaces raw payload + error state
+- Raw PDF417 payload and raw MRZ text are visible in collapsible sections
 
 ## Progress / evidence
 - 2026-10-10: feature doc created; environment verified (Flutter 3.41.2, RDD on-by-default)
+- 2026-10-10: plan revised after desk research (P1 fixed-offset layout, P2 date ambiguity, P3 address/ubigeo absent, P4 four card versions, P5 MRZ needs OCR); product decision: barcode + MRZ OCR
+- 2026-10-10: project skills created (see odd/tasks/project-skills.md); remote `origin` configured
 
 ## Route record
-- T1–T3: delegated direct writer (writer trigger: 2+ non-trivial files)
+- T1–T3: delegated direct writer (writer trigger: 2+ non-trivial files); skills to load: `flutter-testing` (user) + `dni-pdf417-parsing` (project)
 - T4: parent inline checks + native assess
