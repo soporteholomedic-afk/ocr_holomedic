@@ -61,6 +61,10 @@ Manual entry of DNI data is slow and error-prone. Desk research (2026-10-10, sou
 - [ ] R3-date-rejection-untested (SUGGESTION): add tests for date rejection paths in `lib/src/parser/date_parsing.dart:40-50`
 - [ ] R3-expiry-century-boundary (SUGGESTION): century sliding-window boundary in `date_parsing.dart:31-38`
 - [ ] R3-mixed-separator-delimited (SUGGESTION): mixed separators handling in delimited layout, `pdf417_parser.dart:96-104`
+- [ ] R3-hint-offscreen-when-window-clamped (WARNING): hint may render offscreen when the guide window clamps, `scan_guide_overlay.dart:82-97`
+- [ ] R3-unvalidated-geometry-inputs (WARNING): validate geometry params (aspectRatio/widthFactor) in `scan_guide_overlay.dart:118-131`
+- [ ] R3-mrz-hint-drops-birthdate-note (SUGGESTION): MRZ hint could note birth date comes from this step, `mlkit_mrz_adapter.dart:253-259`
+- [ ] R3-wiring-untested-in-screens (SUGGESTION): overlay wiring in plugin screens only compile-verified
 - [ ] On-device calibration with real DNI cards (all four card versions); record results in dni-pdf417-parsing reference
 - [ ] `google_fonts` dependency decision (Inter / Source Serif 4 / JetBrains Mono wiring)
 
