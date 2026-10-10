@@ -25,6 +25,11 @@ Manual entry of DNI data is slow and error-prone. Desk research (2026-10-10, sou
 - Commits: Conventional Commits, no Co-Authored-By / AI attribution
 - Branch: `feature/dni-scanner-prototype` off `feature/project-skills`
 
+## Deployment decision (2026-10-10)
+- Prototype: 100% on-device (no server, validates capture fastest).
+- Production context: organization internal network with an available server. Evolution path is hybrid: capture stays on-device (barcode + MRZ), parsing/calibration migrates server-side so recalibration does not require app releases.
+- Architectural consequence (binding for T2): the parser must be a pure Dart module — no Flutter imports, no plugin dependencies — so it runs unchanged on a Dart server later.
+
 ## Tasks
 - [ ] T1: Bootstrap Flutter app at repo root (`flutter create .`, deps, camera permissions Android + iOS)
 - [ ] T2: `DniData` model + PDF417 multi-format parser + MRZ TD1 parser + merge logic + unit tests (RED -> GREEN)
@@ -37,6 +42,7 @@ Manual entry of DNI data is slow and error-prone. Desk research (2026-10-10, sou
 - After scanning, the card shows DNI number, names, and birth date (from MRZ when readable); address/ubigeo show empty + pending-calibration flag
 - Parser handles all four layout cases without crashing; unknown layout surfaces raw payload + error state
 - Raw PDF417 payload and raw MRZ text are visible in collapsible sections
+- Parser module imports no Flutter libraries (pure Dart, server-migrable)
 
 ## Progress / evidence
 - 2026-10-10: feature doc created; environment verified (Flutter 3.41.2, RDD on-by-default)
