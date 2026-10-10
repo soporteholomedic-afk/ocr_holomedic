@@ -6,6 +6,9 @@
 /// [BarcodeScannerPort].
 library;
 
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -48,6 +51,7 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
   );
 
   bool _didPop = false;
+  bool _torchOn = false;
 
   @override
   void dispose() {
@@ -57,11 +61,56 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
 
   void _onDetect(BarcodeCapture capture) {
     for (final barcode in capture.barcodes) {
-      final rawValue = barcode.rawValue;
-      if (rawValue != null && rawValue.isNotEmpty) {
-        _pop(rawValue);
+      if (barcode.format != BarcodeFormat.pdf417) {
+        continue;
+      }
+      final String? payload = _extractPayload(barcode);
+      if (payload != null && payload.isNotEmpty) {
+        if (kDebugMode) {
+          debugPrint(
+            '[scan] pdf417 payload captured (${payload.length} chars, '
+            'rawValue=${barcode.rawValue != null ? 'text' : 'bytes'})',
+          );
+        }
+        _pop(payload);
         return;
       }
+    }
+  }
+
+  /// Extracts the raw payload from a detected PDF417 barcode.
+  ///
+  /// The Peruvian DNI payload embeds binary biometric data after the text
+  /// header, so ML Kit often fails to decode the whole payload as text and
+  /// reports `rawValue` as null. In that case the raw bytes are decoded
+  /// with Latin-1, which maps every byte 1:1 and preserves the character
+  /// positions the fixed-offset parser relies on. Never trim the result:
+  /// leading or trailing edits would shift the fixed offsets.
+  String? _extractPayload(Barcode barcode) {
+    final String? text = barcode.rawValue;
+    if (text != null && text.isNotEmpty) {
+      return text;
+    }
+    final Uint8List? bytes = switch (barcode.rawDecodedBytes) {
+      final DecodedBarcodeBytes decoded => decoded.bytes,
+      // Legacy fallback for plugin paths that never populate rawDecodedBytes.
+      // ignore: deprecated_member_use
+      _ => barcode.rawBytes,
+    };
+    if (bytes == null || bytes.isEmpty) {
+      return null;
+    }
+    return latin1.decode(bytes);
+  }
+
+  Future<void> _toggleTorch() async {
+    try {
+      await _controller.toggleTorch();
+      if (mounted) {
+        setState(() => _torchOn = !_torchOn);
+      }
+    } catch (e) {
+      debugPrint('[scan] torch toggle failed: $e');
     }
   }
 
@@ -102,9 +151,22 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: FilledButton(
-                    onPressed: () => _pop(null),
-                    child: const Text('Cancel'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton.filledTonal(
+                        onPressed: _toggleTorch,
+                        icon: Icon(
+                          _torchOn ? Icons.flashlight_on : Icons.flashlight_off,
+                        ),
+                        tooltip: 'Toggle torch',
+                      ),
+                      const SizedBox(width: 16),
+                      FilledButton(
+                        onPressed: () => _pop(null),
+                        child: const Text('Cancel'),
+                      ),
+                    ],
                   ),
                 ),
               ],
