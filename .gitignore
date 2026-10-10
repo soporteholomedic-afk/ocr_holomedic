@@ -1,1 +1,7 @@
 .atl/
+
+# Flutter
+build/
+.dart_tool/
+.idea/
+*.iml
