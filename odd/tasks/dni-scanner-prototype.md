@@ -31,7 +31,7 @@ Manual entry of DNI data is slow and error-prone. Desk research (2026-10-10, sou
 - Architectural consequence (binding for T2): the parser must be a pure Dart module — no Flutter imports, no plugin dependencies — so it runs unchanged on a Dart server later.
 
 ## Tasks
-- [ ] T1: Bootstrap Flutter app at repo root (`flutter create .`, deps, camera permissions Android + iOS)
+- [x] T1: Bootstrap Flutter app at repo root (`flutter create .`, deps, camera permissions Android + iOS)
 - [ ] T2: `DniData` model + PDF417 multi-format parser + MRZ TD1 parser + merge logic + unit tests (RED -> GREEN)
 - [ ] T3: Home screen + scanner flow (barcode then MRZ capture) + card fill with per-field source/flags (+ widget tests)
 - [ ] T4: Parent verification (`flutter analyze`, `flutter test`) + native review assessment
@@ -48,7 +48,10 @@ Manual entry of DNI data is slow and error-prone. Desk research (2026-10-10, sou
 - 2026-10-10: feature doc created; environment verified (Flutter 3.41.2, RDD on-by-default)
 - 2026-10-10: plan revised after desk research (P1 fixed-offset layout, P2 date ambiguity, P3 address/ubigeo absent, P4 four card versions, P5 MRZ needs OCR); product decision: barcode + MRZ OCR
 - 2026-10-10: project skills created (see odd/tasks/project-skills.md); remote `origin` configured
+- 2026-10-10: T1 done — `flutter create .` (org com.holomedic, android+ios), deps `mobile_scanner` + `google_mlkit_text_recognition`, CAMERA permission (AndroidManifest) + NSCameraUsageDescription (Info.plist). `flutter analyze` clean. Commit `4f51b7b`. Test device authorized: SM A256E (R5CX800GJMX, Android 16/API 36)
 
 ## Route record
-- T1–T3: delegated direct writer (writer trigger: 2+ non-trivial files); skills to load: `flutter-testing` (user) + `dni-pdf417-parsing` (project)
+- T1: parent inline (command-generated scaffolding + two one-line permission edits; no authored multi-file change)
+- T2: delegated direct writer (writer trigger: 2+ non-trivial files); skills to load: `flutter-testing` (user) + `dni-pdf417-parsing` (project)
+- T3: delegated direct writer (multi-file UI)
 - T4: parent inline checks + native assess
