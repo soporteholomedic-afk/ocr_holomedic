@@ -10,6 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'barcode_scanner_port.dart';
+import '../../ui/widgets/scan_guide_overlay.dart';
+
+/// Guide window shape for the barcode step: a wide horizontal strip,
+/// centered (PDF417 is a wide barcode). Visual assumption pending
+/// on-device calibration.
+const double _pdf417GuideAspectRatio = 4.0;
 
 /// Scans a PDF417 barcode with the device camera.
 final class MobileScannerBarcodeAdapter implements BarcodeScannerPort {
@@ -84,21 +90,16 @@ class _BarcodeScanScreenState extends State<BarcodeScanScreen> {
               ),
             ),
           ),
+          // Transparent to hit testing, so the Cancel button keeps working.
+          const ScanGuideOverlay(
+            key: Key('barcode-scan-guide'),
+            aspectRatio: _pdf417GuideAspectRatio,
+            hint: 'Align the barcode on the back of the DNI inside the frame',
+          ),
           SafeArea(
             child: Column(
               children: [
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'Hold the camera over the PDF417 barcode on the back of '
-                    'the document.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: FilledButton(

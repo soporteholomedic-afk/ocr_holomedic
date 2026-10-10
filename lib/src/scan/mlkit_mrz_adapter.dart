@@ -17,6 +17,13 @@ import 'package:flutter/services.dart' show DeviceOrientation;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import 'mrz_scanner_port.dart';
+import '../../ui/widgets/scan_guide_overlay.dart';
+
+/// Guide window for the MRZ step: a wide strip placed in the lower third
+/// of the preview, where the TD1 MRZ sits on the card. Visual assumption
+/// pending on-device calibration.
+const double _mrzGuideAspectRatio = 3.4;
+const Alignment _mrzGuideAlignment = Alignment(0, 0.6);
 
 /// Recognizes the MRZ lines of a document with live text recognition.
 final class MlkitMrzAdapter implements MrzScannerPort {
@@ -243,21 +250,17 @@ class _MrzScanScreenState extends State<MrzScanScreen> {
             CameraPreview(controller)
           else
             Center(child: Text(_statusText ?? 'Starting camera…')),
+          // Transparent to hit testing, so the Skip button keeps working.
+          const ScanGuideOverlay(
+            key: Key('mrz-scan-guide'),
+            aspectRatio: _mrzGuideAspectRatio,
+            alignment: _mrzGuideAlignment,
+            hint: 'Align the 3 text lines at the bottom of the card',
+          ),
           SafeArea(
             child: Column(
               children: [
                 const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Text(
-                    'Hold the camera over the three MRZ lines on the back of '
-                    'the document. The birth date is only read here.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: FilledButton.tonal(
