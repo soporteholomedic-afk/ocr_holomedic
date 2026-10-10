@@ -29,8 +29,6 @@ abstract final class AppRadius {
 
 /// Shadow tokens converted from the CSS custom properties.
 abstract final class AppShadows {
-  static const Color _color = Color(0xFF000000);
-
   static const List<BoxShadow> xs = [
     BoxShadow(offset: Offset(0, 1), blurRadius: 3, color: Color(0x0D000000)),
   ];
