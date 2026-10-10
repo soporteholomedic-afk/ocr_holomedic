@@ -13,11 +13,11 @@ The registry has 14 user-level skills but none Flutter-specific. Tasks T2/T3 of 
 - Work-unit commits on feature branch; remote `origin` already configured (push is user's decision)
 
 ## Tasks
-- [ ] T1: feature doc + visible tracking (this document)
-- [ ] T2: `flutter-testing` SKILL.md following skill-creator style guide (frontmatter, section order, body budget)
-- [ ] T3: `dni-pdf417-parsing` SKILL.md + `references/payload-layout-notes.md`
-- [ ] T4: registry refresh: `.atl/skill-registry.md` + Engram `skill-registry`
-- [ ] T5: work-unit commits on `feature/project-skills`
+- [x] T1: feature doc + visible tracking (this document)
+- [x] T2: `flutter-testing` SKILL.md following skill-creator style guide (frontmatter, section order, body budget)
+- [x] T3: `dni-pdf417-parsing` SKILL.md + `references/payload-layout-notes.md`
+- [x] T4: registry refresh: `.atl/skill-registry.md` + Engram `skill-registry`
+- [x] T5: work-unit commits on `feature/project-skills`
 
 ## Acceptance criteria
 - Both SKILL.md files pass the LLM-first checklist: complete single-line quoted description with trigger words, required section order, body <= 1000 tokens, local references only
@@ -26,6 +26,13 @@ The registry has 14 user-level skills but none Flutter-specific. Tasks T2/T3 of 
 
 ## Progress / evidence
 - 2026-10-10: remote `origin` added (git@github.com:soporteholomedic-afk/ocr_holomedic.git); feature doc created
+- 2026-10-10: all tasks complete. Commits on `feature/project-skills`:
+  - `46155bb` docs: add feature planning docs for DNI scanner prototype and project skills
+  - `0870722` chore: ignore .atl workspace directory
+  - `a3d1d08` feat(skills): add dni-pdf417-parsing project skill with payload layout reference
+- 2026-10-10: domain research finding — community source (Eitol/peru-dni-reader) documents fixed-offset layout for 1997 DNI, not pipe-delimited; address/ubigeo absent from documented barcode/MRZ fields (recorded in payload-layout-notes.md and flagged to dni-scanner-prototype plan)
+- flutter-testing skill lives at user level (`C:\Users\soporte\.agents\skills\flutter-testing\`) — outside this repo, not versioned here
+- Push to `origin` pending (user decision)
 
 ## Route record
 - T2–T3: parent inline (single-file writes with full context already loaded; skill-creator guide read in-session)
